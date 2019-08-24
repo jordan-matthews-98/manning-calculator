@@ -12,6 +12,7 @@ double calcHydraulicRadius(double, double);
 double calcWettedPerimeter(double, double);
 double calcWettedPerimeter1(double, double);
 double calcTheta(double, double);
+double calcVelocity(double, double);
 
 // for future update
 //double calcFrictionCoefficient(double, double, double);
@@ -42,7 +43,7 @@ int main(){
         cout << "Desired Flow (m^3/s): ";
         cin >> desiredFlow;
 
-        double incr = .5, depthOfFlow = .5, radius = diameter / 2, theta, area, wettedPerimeter, hydraulicRadius, frictionCoefficient, flow;
+        double incr = .5, depthOfFlow = .5, radius = diameter / 2, theta, area, wettedPerimeter, hydraulicRadius, frictionCoefficient, flow, velocity;
 
         theta = calcTheta(radius, depthOfFlow);
         area = calcArea(radius, theta);
@@ -51,6 +52,7 @@ int main(){
         //frictionCoefficient = calcFrictionCoefficient(fpRoughness, depthOfFlow, radius);
         frictionCoefficient = fpRoughness;
         flow = calcFlow(area, hydraulicRadius, slope, frictionCoefficient);
+        velocity = calcVelocity(flow, area);
         while(incr != 0){
             incr /= 2;
             if(flow > desiredFlow + 1e-20){
@@ -62,6 +64,7 @@ int main(){
                     hydraulicRadius = calcHydraulicRadius(area, wettedPerimeter);
                     //frictionCoefficient = calcFrictionCoefficient(fpRoughness, depthOfFlow, radius);
                     flow = calcFlow(area, hydraulicRadius, slope, frictionCoefficient);
+                    velocity = calcVelocity(flow, area);
                 }else{
                     theta = calcTheta(radius, 1 - depthOfFlow);
                     area = calcArea1(radius, theta);
@@ -69,6 +72,7 @@ int main(){
                     hydraulicRadius = calcHydraulicRadius(area, wettedPerimeter);
                     //frictionCoefficient = calcFrictionCoefficient(fpRoughness, depthOfFlow, radius);
                     flow = calcFlow(area, hydraulicRadius, slope, frictionCoefficient);
+                    velocity = calcVelocity(flow, area);
                 }
             }else if (flow  < desiredFlow - 1e-20){
                 depthOfFlow += incr;
@@ -79,6 +83,7 @@ int main(){
                     hydraulicRadius = calcHydraulicRadius(area, wettedPerimeter);
                     //frictionCoefficient = calcFrictionCoefficient(fpRoughness, depthOfFlow, radius);
                     flow = calcFlow(area, hydraulicRadius, slope, frictionCoefficient);
+                    velocity = calcVelocity(flow, area);
                 }else{
                     if(depthOfFlow > .9){
                         // the depth of flow function changes to decreasing past .98, and values over .9 are not needed by user
@@ -92,6 +97,7 @@ int main(){
                         hydraulicRadius = calcHydraulicRadius(area, wettedPerimeter);
                         //frictionCoefficient = calcFrictionCoefficient(fpRoughness, depthOfFlow, radius);
                         flow = calcFlow(area, hydraulicRadius, slope, frictionCoefficient);
+                        velocity = calcVelocity(flow, area);
                         break;
                     }
                     theta = calcTheta(radius, 1 - depthOfFlow);
@@ -100,6 +106,7 @@ int main(){
                     hydraulicRadius = calcHydraulicRadius(area, wettedPerimeter);
                     //frictionCoefficient = calcFrictionCoefficient(fpRoughness, depthOfFlow, radius);
                     flow = calcFlow(area, hydraulicRadius, slope, frictionCoefficient);
+                    velocity = calcVelocity(flow, area);
                 }
             }else{
                 break;
@@ -114,6 +121,7 @@ int main(){
              << left << setw(18) << "Wetted Perimeter: " << right << setprecision(4) << setw(9) << wettedPerimeter << " m" << endl
              << left << setw(18) << "Hydraulic Radius: " << right << setprecision(4) << setw(9) << hydraulicRadius << " m" << endl
              << left << setw(18) << "Flow: " << right << setprecision(4) << setw(9) << flow << " m^3/s" << endl
+             << left << setw(18) << "Velocity: " << right << setprecision(4) << setw(9) << velocity << " m/s" << endl
              << left << setw(18) << "Depth of Flow: " << right << setprecision(4) << setw(9) << depthOfFlow * 100 << " %" << endl
              << left << setw(18) << "Depth of Flow: " << right << setprecision(4) << setw(9) << depthOfFlow * radius * 2 << " m" << endl;
 
@@ -151,6 +159,10 @@ double calcWettedPerimeter1(double radius, double theta){
 
 double calcTheta(double radius, double depthOfFlow){
     return 2 * acos((radius - depthOfFlow * radius * 2) / radius);
+}
+
+double calcVelocity(double flow, double area){
+    return flow / area;
 }
 
 /*
